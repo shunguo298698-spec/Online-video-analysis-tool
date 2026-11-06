@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>密钥生成器 · WebCatX</title>
+<style>
+  :root {
+    --ink: #111111; --paper: #f6f1e4; --card: #ffffff; --card-2: #fffdf3;
+    --yellow: #ffe24b; --pink: #ff4d9d; --cyan: #2ed3e0; --lime: #c9f24a; --red: #ff3b30; --green: #1fb85a;
+    --border: 3px solid var(--ink); --border-thin: 2.5px solid var(--ink);
+    --sh: 6px 6px 0 var(--ink); --sh-sm: 4px 4px 0 var(--ink);
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    min-height: 100vh; background: var(--paper); color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(17,17,17,.06) 0 1px, transparent 1px 28px),
+      repeating-linear-gradient(90deg, rgba(17,17,17,.06) 0 1px, transparent 1px 28px);
+    padding: 24px 14px 60px;
+  }
+  .app { max-width: 480px; margin: 0 auto; }
+  .head { text-align: center; margin-bottom: 20px; }
+  .head h1 {
+    display: inline-block; font-size: 22px; font-weight: 900; letter-spacing: 2px;
+    padding: 5px 16px; background: var(--pink); border: var(--border); box-shadow: var(--sh);
+    transform: rotate(-1.2deg);
+  }
+  .head p { margin-top: 12px; font-family: var(--mono); font-size: 10px; font-weight: 800; letter-spacing: 2px; color: #7a7466; }
+  .card { background: var(--card); border: var(--border); box-shadow: var(--sh); padding: 16px; margin-bottom: 16px; }
+  .lbl {
+    font-family: var(--mono); font-size: 11px; font-weight: 800; letter-spacing: 1px;
+    text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 7px;
+  }
+  .lbl::before { content: '▶'; font-size: 9px; color: var(--cyan); }
+  .inp {
+    width: 100%; padding: 12px; background: #fff; border: var(--border-thin); border-radius: 0;
+    font-family: var(--mono); font-size: 13.5px; color: var(--ink); outline: none;
+    transition: box-shadow .15s, background .15s;
+  }
+  .inp:focus { box-shadow: inset 0 0 0 3px var(--yellow); background: var(--card-2); }
+  .btn {
+    width: 100%; padding: 13px; border: var(--border-thin); background: var(--yellow); color: var(--ink);
+    font-family: inherit; font-size: 14px; font-weight: 800; letter-spacing: 1px; border-radius: 0;
+    box-shadow: var(--sh-sm); cursor: pointer; transition: transform .1s, box-shadow .1s; margin-top: 10px;
+  }
+  .btn:active { transform: translate(4px,4px); box-shadow: 0 0 0 var(--ink); }
+  .btn:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: var(--sh-sm); }
+  .btn.cyan { background: var(--cyan); }
+  .btn.lime { background: var(--lime); }
+  .btn.ghost { background: var(--card); }
+  .btn.pink { background: var(--pink); }
+  .btn.sm { width: auto; padding: 7px 12px; font-size: 11px; margin-top: 0; box-shadow: var(--sh-sm); }
+  .btn.sm.danger { background: var(--red); color: #fff; }
+  .btn.sm.confirm { background: var(--red); color: #fff; animation: blink .5s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: .55; } }
+  .row { display: flex; gap: 8px; }
+  .row .inp { flex: 1; }
+  .new-key {
+    margin-top: 12px; padding: 14px; text-align: center; background: var(--ink); color: var(--lime);
+    font-family: var(--mono); font-size: 17px; font-weight: 800; letter-spacing: 1px;
+    word-break: break-all; user-select: all; border: var(--border-thin); display: none;
+  }
+  .msg { min-height: 18px; margin-top: 10px; font-size: 12px; font-weight: 800; line-height: 1.6; color: var(--red); word-break: break-word; }
+  .msg.ok { color: var(--green); }
+  .note { font-size: 11px; color: #7a7466; font-weight: 700; line-height: 1.8; margin-top: 10px; }
+  .key-list { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+  .key-item { border: var(--border-thin); background: var(--card-2); padding: 10px; }
+  .key-code { font-family: var(--mono); font-size: 13px; font-weight: 800; word-break: break-all; user-select: all; }
+  .key-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; font-family: var(--mono); font-size: 10px; font-weight: 800; }
+  .tag { padding: 2px 6px; border: 2px solid var(--ink); background: var(--cyan); }
+  .tag.warn { background: var(--yellow); }
+  .tag.bound { background: var(--lime); }
+  .key-ops { display: flex; gap: 8px; margin-top: 8px; }
+  .empty { font-family: var(--mono); font-size: 11px; color: #8f8a7c; text-align: center; padding: 14px 0; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="head">
+    <h1>密钥生成器</h1>
+    <p>WEBCATX · KEYGEN · MOBILE</p>
+  </div>
+
+  <div class="card">
+    <div class="lbl">管理员密钥</div>
+    <input class="inp" id="adminKey" type="password" placeholder="输入管理员密钥">
+    <div class="lbl" style="margin-top:14px;">服务器地址（打包成APP时填写）</div>
+    <input class="inp" id="serverUrl" placeholder="https://你的后端地址">
+    <button class="btn ghost" onclick="saveCfg(); loadKeys();">连接并载入</button>
+    <div class="msg" id="cfgMsg"></div>
+  </div>
+
+  <div class="card">
+    <div class="lbl">创建新密钥（不限数量）</div>
+    <div class="row">
+      <input class="inp" id="ttlMin" type="number" min="0" placeholder="有效时长(分钟) 空=不限">
+      <input class="inp" id="maxUses" type="number" min="0" placeholder="使用次数 空=不限">
+    </div>
+    <button class="btn pink" onclick="createKey()">生成密钥</button>
+    <div class="new-key" id="newKey"></div>
+    <button class="btn lime" id="copyBtn" style="display:none;" onclick="copyNew()">复制密钥</button>
+    <div class="note">密钥首次激活即绑定该用户设备，仅该用户可用；次数用尽或时间到期自动删除。</div>
+    <div class="msg" id="createMsg"></div>
+  </div>
+
+  <div class="card">
+    <div class="lbl">密钥列表</div>
+    <div class="key-list" id="keyList"></div>
+    <button class="btn ghost" onclick="loadKeys()">刷新列表</button>
+    <div class="msg" id="listMsg"></div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+let lastKey = '';
+
+function msg(id, text, ok) {
+  const el = $(id);
+  el.textContent = text || '';
+  el.classList.toggle('ok', !!ok);
+}
+
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function base() {
+  return ($('serverUrl').value || '').trim().replace(/\/+$/, '');
+}
+
+function saveCfg() {
+  try { localStorage.setItem('wcx_keygen_srv', base()); } catch (e) {}
+}
+
+function adminHdr(json) {
+  const h = { 'X-Admin-Key': $('adminKey').value.trim() };
+  if (json) h['Content-Type'] = 'application/json';
+  return h;
+}
+
+async function createKey() {
+  if (!$('adminKey').value.trim()) { msg('createMsg', '请先填写管理员密钥'); return; }
+  const ttl = $('ttlMin').value ? parseInt($('ttlMin').value, 10) : null;
+  const uses = $('maxUses').value ? parseInt($('maxUses').value, 10) : null;
+  msg('createMsg', '正在生成…', true);
+  try {
+    const r = await fetch(base() + '/keys', {
+      method: 'POST', headers: adminHdr(true),
+      body: JSON.stringify({ ttl_min: ttl, max_uses: uses }),
+    });
+    const d = await r.json().catch(() => ({}));
+    if (r.ok && d.ok) {
+      lastKey = d.key;
+      $('newKey').style.display = 'block';
+      $('newKey').textContent = lastKey;
+      $('copyBtn').style.display = 'block';
+      msg('createMsg', '已生成，首次激活后绑定设备', true);
+      loadKeys();
+    } else {
+      msg('createMsg', d.error === 'deny' ? '管理员密钥错误' : ('失败：' + (d.error || r.status)));
+    }
+  } catch (e) {
+    msg('createMsg', '失败：' + (e.message || '网络错误'));
+  }
+}
+
+function fmtLeft(sec) {
+  if (sec === null || sec === undefined) return '不限时';
+  if (sec <= 0) return '已到期';
+  if (sec < 3600) return Math.ceil(sec / 60) + ' 分钟';
+  if (sec < 86400) return (sec / 3600).toFixed(1) + ' 小时';
+  return (sec / 86400).toFixed(1) + ' 天';
+}
+
+async function loadKeys() {
+  if (!$('adminKey').value.trim()) { msg('listMsg', '请先填写管理员密钥'); return; }
+  msg('listMsg', '加载中…', true);
+  try {
+    const r = await fetch(base() + '/keys', { headers: adminHdr(false) });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok || !d.ok) { msg('listMsg', d.error === 'deny' ? '管理员密钥错误' : '加载失败'); return; }
+    renderKeys(d.keys || []);
+    msg('listMsg', '', true);
+  } catch (e) {
+    msg('listMsg', '加载失败：' + (e.message || '网络错误'));
+  }
+}
+
+function renderKeys(list) {
+  const box = $('keyList');
+  if (!list.length) {
+    box.innerHTML = '<div class="empty">暂无密钥</div>';
+    return;
+  }
+  box.innerHTML = list.map(k =>
+    '<div class="key-item">' +
+      '<div class="key-code">' + esc(k.key) + '</div>' +
+      '<div class="key-meta">' +
+        '<span class="tag' + (k.ttl_left !== null && k.ttl_left < 3600 ? ' warn' : '') + '">⏱ ' + esc(fmtLeft(k.ttl_left)) + '</span>' +
+        '<span class="tag">✦ ' + (k.uses_left === null ? '不限次' : '剩 ' + k.uses_left + ' 次') + '</span>' +
+        (k.bound ? '<span class="tag bound">已绑定设备</span>' : '<span class="tag">未使用</span>') +
+      '</div>' +
+      '<div class="key-ops">' +
+        '<button class="btn sm danger" data-del="' + esc(k.key) + '" onclick="askDelete(this)">删除</button>' +
+      '</div>' +
+    '</div>').join('');
+}
+
+function askDelete(btn) {
+  if (btn.dataset.confirm === '1') {
+    btn.textContent = '删除中…';
+    btn.disabled = true;
+    doDelete(btn.dataset.del);
+    return;
+  }
+  btn.dataset.confirm = '1';
+  btn.classList.add('confirm');
+  btn.textContent = '再次点击确认删除';
+  setTimeout(() => {
+    if (document.body.contains(btn)) {
+      btn.dataset.confirm = '';
+      btn.classList.remove('confirm');
+      btn.textContent = '删除';
+    }
+  }, 3000);
+}
+
+async function doDelete(key) {
+  try {
+    const r = await fetch(base() + '/keys/del', {
+      method: 'POST', headers: adminHdr(true),
+      body: JSON.stringify({ k: key }),
+    });
+    const d = await r.json().catch(() => ({}));
+    if (r.ok && d.ok) {
+      msg('listMsg', '已删除：' + key, true);
+      loadKeys();
+    } else {
+      msg('listMsg', '删除失败：' + (d.error || r.status));
+    }
+  } catch (e) {
+    msg('listMsg', '删除失败：' + (e.message || '网络错误'));
+  }
+}
+
+function copyNew() {
+  if (!lastKey) return;
+  const done = () => msg('createMsg', '已复制', true);
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(lastKey).then(done).catch(done);
+  else { const t = document.createElement('textarea'); t.value = lastKey; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); done(); }
+}
+
+try {
+  $('serverUrl').value = localStorage.getItem('wcx_keygen_srv') || '';
+} catch (e) {}
+</script>
+</body>
+</html>

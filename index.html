@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>WebCatX · 客户端下载</title>
+<style>
+  :root {
+    --paper: #f6f1e4;
+    --ink: #111;
+    --yellow: #ffd400;
+    --cyan: #06d6a0;
+    --card-2: #fffdf5;
+    --text-muted: #6b6250;
+    --mono: 'Courier New', ui-monospace, monospace;
+    --border: 3px solid var(--ink);
+    --border-thin: 2px solid var(--ink);
+    --sh: 6px 6px 0 var(--ink);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px 16px;
+    font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    color: var(--ink);
+    background-color: var(--paper);
+    background-image:
+      repeating-linear-gradient(0deg, rgba(17,17,17,.075) 0 1px, transparent 1px 28px),
+      repeating-linear-gradient(90deg, rgba(17,17,17,.075) 0 1px, transparent 1px 28px);
+  }
+  .wrap { width: 100%; max-width: 430px; }
+  .card {
+    background: var(--card-2);
+    border: var(--border);
+    box-shadow: var(--sh);
+    padding: 26px 22px;
+    text-align: center;
+  }
+  .badge {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10px; font-weight: 800; letter-spacing: 2.5px;
+    padding: 3px 10px;
+    background: var(--ink); color: var(--paper);
+    margin-bottom: 14px;
+  }
+  h1 { font-size: 24px; font-weight: 900; letter-spacing: 1px; }
+  .sub {
+    margin: 10px 0 20px;
+    font-size: 12.5px; font-weight: 700; line-height: 1.8;
+    color: var(--text-muted);
+  }
+  .notice {
+    margin: 0 0 18px;
+    padding: 12px;
+    background: var(--yellow);
+    border: var(--border-thin);
+    font-size: 12px; font-weight: 800; line-height: 1.7;
+    text-align: left;
+  }
+  .app-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 13px 12px;
+    margin-bottom: 12px;
+    background: #fff;
+    border: var(--border-thin);
+    text-align: left;
+  }
+  .app-item .ic {
+    flex: none;
+    width: 42px; height: 42px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--ink); color: var(--yellow);
+    font-family: var(--mono); font-size: 16px; font-weight: 800;
+  }
+  .app-item .info { flex: 1; min-width: 0; }
+  .app-item .name { font-size: 14px; font-weight: 900; }
+  .app-item .desc { font-size: 11px; color: var(--text-muted); font-weight: 700; margin-top: 3px; line-height: 1.5; }
+  .dl-btn {
+    flex: none;
+    display: inline-block;
+    padding: 9px 14px;
+    background: var(--ink); color: var(--yellow);
+    font-size: 12px; font-weight: 900; letter-spacing: 1px;
+    text-decoration: none;
+    border: var(--border-thin);
+    box-shadow: 3px 3px 0 rgba(17,17,17,.85);
+  }
+  .dl-btn:active { transform: translate(3px,3px); box-shadow: none; }
+  .foot {
+    margin-top: 18px;
+    font-family: var(--mono);
+    font-size: 10px; font-weight: 700; letter-spacing: 1px;
+    color: var(--text-muted);
+    line-height: 1.8;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <span class="badge">WEBCATX · ANDROID</span>
+    <h1>客户端下载</h1>
+    <p class="sub">本服务仅提供软件版访问<br>请下载安装对应客户端使用</p>
+
+    <div class="notice">
+      网页端已停用，所有功能仅在 APP 内提供。<br>
+      安装时如提示"未知来源应用"，请允许后安装。<br>
+      不同机型安装同一客户端即可数据互通。
+    </div>
+
+    <div class="app-item">
+      <div class="ic">S</div>
+      <div class="info">
+        <div class="name">WebCatX 软件版</div>
+        <div class="desc">用户端 · 输入密钥激活后使用解析功能（普通用户安装此版本）</div>
+      </div>
+      <a class="dl-btn" href="/download/WebCatX-soft.apk">下载</a>
+    </div>
+
+    <div class="app-item">
+      <div class="ic">A</div>
+      <div class="info">
+        <div class="name">WebCatX 管理后台</div>
+        <div class="desc">管理员 · 密码管理 / 密钥管理 / 访问日志（仅限管理员）</div>
+      </div>
+      <a class="dl-btn" href="/download/WebCatX-admin.apk">下载</a>
+    </div>
+
+    <div class="app-item">
+      <div class="ic">K</div>
+      <div class="info">
+        <div class="name">WebCatX 密钥生成器</div>
+        <div class="desc">管理员 · 独立密钥生成与管理工具（仅限管理员）</div>
+      </div>
+      <a class="dl-btn" href="/download/WebCatX-keygen.apk">下载</a>
+    </div>
+
+    <div class="foot">WEBCATX · PURE APP EDITION<br>MIN ANDROID 7.0 · API 24+</div>
+  </div>
+</div>
+</body>
+</html>
